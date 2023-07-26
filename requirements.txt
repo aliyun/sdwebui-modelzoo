@@ -1,0 +1,2 @@
+https://pai-vision-data-sh.oss-cn-shanghai.aliyuncs.com/aigc-data/modelzoo/docarray-0.17.1-py3-none-any.whl
+Levenshtein

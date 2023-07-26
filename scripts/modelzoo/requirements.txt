@@ -1,0 +1,2 @@
+https://pai-vision-exp.oss-cn-zhangjiakou.aliyuncs.com/wzh-zhoulou/metric_learning/230303/modelzoo/docarray-0.17.1-py3-none-any.whl
+Levenshtein
