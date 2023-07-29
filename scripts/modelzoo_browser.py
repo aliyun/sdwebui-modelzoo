@@ -7,6 +7,7 @@ import os
 import platform
 import re
 import sys
+import shutil
 import tempfile
 import traceback
 from io import BytesIO, StringIO
@@ -27,6 +28,12 @@ from modules.ui_components import DropdownMulti, ToolButton
 from scripts.modelzoo.modelzoo.metainfo import ModelMeta
 from scripts.modelzoo.modelzoo.modelzoo import ModelZoo
 from scripts.modelzoo.modelzoo.prompt import Prompt
+from scripts.utils import convert_size
+from modules.sd_hijack import model_hijack
+
+import time
+from modules import extensions
+import html
 
 default_tab_options = ['Gallery', 'Upload Model', 'Download Model']
 tabs_list = [
@@ -87,6 +94,8 @@ if os.path.exists(today_path_img):
     for image in os.listdir(today_path_img):
         image_path = os.path.join(today_path_img, image)
         saved_images.append(image_path)
+source_model_dir = ""
+target_model_dir = ""
 
 
 class ModelZooBrowserTab():
@@ -873,36 +882,37 @@ def download_by_link(model_link: str,
         output_dir = stable_diffusion_dir
     model_tags = ['safetensors'] if not is_lora else ['lora']
     # Create a message to display at the top of the page.
-    load_info = "<div style='color:#111' align='center'>"
+    load_info = "download by model link: "
 
     # Get the filename from the link.
     if filename == '':
-        load_info = 'please input filename'
-        load_info += '</div>'
+        load_info = 'please input filename<br />'
+        return load_info, turn_page_switch
+    if model_link == '':
+        load_info = 'please input model_link<br />'
         return load_info, turn_page_switch
     if is_controlnet:
         if not filename.endswith(('.pth', '.bin', '.ckpt', '.pt')):
-            load_info = 'please input controlnet filename with suffix'
-            load_info += '</div>'
+            load_info = 'please input controlnet filename with suffix<br />'
             return load_info, turn_page_switch
     else:
         if not filename.endswith(('.safetensors', '.ckpt', '.bin')):
-            load_info = 'please input filename with suffix'
-            load_info += '</div>'
+            load_info = 'please input filename with suffix<br />'
             return load_info, turn_page_switch
     try:
         res = requests.get(model_link, stream=True, timeout=5)
     except (requests.exceptions.ReadTimeout,
             requests.exceptions.ConnectionError,
             urllib3.exceptions.ReadTimeoutError, TimeoutError):
-        load_info = 'timeout, suggest copy by oss to filebrowser'
-        load_info += '</div>'
+        load_info = 'timeout, suggest copy by oss to filebrowser<br />'
+        return load_info, turn_page_switch
+    except (requests.exceptions.MissingSchema):
+        load_info = 'please input valid model link<br />'
         return load_info, turn_page_switch
 
     # Check the response status code.
     if res.status_code == 404 or res.status_code == 500:
-        load_info = 'download failed'
-        load_info += '</div>'
+        load_info = 'download failed<br />'
         return load_info, turn_page_switch
     target_model = os.path.join(output_dir, filename)
     f = open(target_model, 'wb')
@@ -926,12 +936,102 @@ def download_by_link(model_link: str,
     if result:
         if not is_controlnet:
             mz.create_model(target_model, filename, model_tags=model_tags)
-        load_info = 'download {} successfully'.format(filename)
+        load_info = 'download {} successfully<br />'.format(filename)
     else:
-        load_info = 'download {} failed'.format(filename)
-    load_info += '</div>'
+        load_info = 'download {} failed<br />'.format(filename)
 
     return load_info, -turn_page_switch
+
+
+def download_public_cache(models_selected):
+    global source_model_dir, target_data_dir
+    load_info = "download from public cache: "
+    models_selected = set(json.loads(models_selected))
+    existed_models = list()
+    success_models = list()
+
+    for model in models_selected:
+        source_model = os.path.join(source_model_dir, model)
+        target_model = os.path.join(target_data_dir, model)
+
+        if os.path.exists(target_model):
+            existed_models.append(model)
+            continue
+
+        # shutil.copy(source_model, target_model)
+        success_models.append(model)
+        print(f"copy from {source_model} to {target_model}")
+
+    if success_models != []:
+        load_info += f'download {", ".join(success_models)} success</br>'
+    if existed_models != []:
+        load_info += f'{", ".join(existed_models)} already exists in models</br>'
+
+    return load_info
+
+
+def download_api(models_selected, model_link: str,
+    turn_page_switch: int,
+    model_type='checkpoints',
+    md5='',
+    filename='',
+):
+    load_info = "<div style='color:#111' align='center'>"
+
+    load_info += download_public_cache(models_selected)
+    info, turn_page_switch = download_by_link(model_link, turn_page_switch, model_type, md5, filename)
+    load_info += info
+
+    load_info += '</div>'
+
+    return load_info, turn_page_switch
+
+
+def public_cache(file_type: str):
+    global source_model_dir, target_data_dir
+    # check if --data-dir is delivered
+    data_dir = paths.models_path
+    # data_dir = cmd_opts.data_dir
+    if file_type == "Checkpoints":
+        file_type = "Stable-diffusion"
+    source_model_dir = os.path.join(data_dir, file_type)
+    if file_type == 'embeddings':
+        target_data_dir = list(model_hijack.embedding_db.embedding_dirs.keys())[0]
+    else:
+        target_data_dir = os.path.join(paths.models_path, file_type)
+
+    code = f"""<!-- {time.time()} -->
+    <div id="table_div">
+    <table id="public_cache"">
+        <thead>
+            <tr>
+                <th>
+                    <input type="checkbox" class="gr-check-radio gr-checkbox all_extensions_toggle" onchange="toggle_all_extensions(event)" />
+                    <abbr title="Use checkbox to enable the extension; it will be enabled or disabled when you click apply button">model name</abbr>
+                </th>
+                <th>file size</th>
+            </tr>
+        </thead>
+        <tbody>
+    """
+
+    for model in os.listdir(source_model_dir):
+        current_model_path = os.path.join(source_model_dir, model)
+
+        code += f"""
+            <tr>
+                <td><label><input class="gr-check-radio gr-checkbox extension_toggle" type="checkbox" onchange="toggle_extension(event)" name="{model}"/>&nbsp;{model}</label></td>
+                <td>{convert_size(os.path.getsize(current_model_path))}</td>
+            </tr>
+    """
+
+    code += """
+        </tbody>
+    </table>
+    </div>
+    """
+
+    return code
 
 
 def create_tab(tab: ModelZooBrowserTab, current_gr_tab: gr.Tab):
@@ -946,28 +1046,33 @@ def create_tab(tab: ModelZooBrowserTab, current_gr_tab: gr.Tab):
         standard_ui = False
         download_ui = True
 
-    # download model UI
     with gr.Row():
         with gr.Column(visible=standard_ui, scale=10):
             warning_box = gr.HTML('<p>&nbsp')
-    with gr.Row(visible=download_ui):
-        with gr.Row(scale=1):
-            create_warning = gr.HTML()
-        with gr.Row(scale=2):
-            with gr.Column(scale=1):
-                download_model_type_select = gr.Dropdown(
-                    value='Checkpoints',
-                    choices=['Checkpoints', 'Lora', 'ControlNet'],
-                    label='file type')
-            with gr.Column(scale=1):
-                md5_sum = gr.Textbox(placeholder='(optional)', label='md5 sum')
-            with gr.Column(scale=1):
-                model_name = gr.Textbox(label='model name')
-            with gr.Column(scale=1):
-                stable_diffusion_file = gr.Textbox(label='model link')
-            with gr.Column(scale=1):
-                download_button = gr.Button(value='Download',
-                                            variant='primary')
+    # download model UI
+    with gr.Blocks() as download_model_ui:
+        with gr.Row(visible=download_ui):
+            with gr.Row(scale=1):
+                download_warning = gr.HTML()
+            with gr.Row(scale=1):
+                create_warning = gr.HTML()
+            with gr.Row(scale=2):
+                with gr.Column(scale=1):
+                    download_model_type_select = gr.Dropdown(
+                        value='Checkpoints',
+                        choices=['Checkpoints', 'Lora', 'ControlNet', 'VAE', 'embeddings'],
+                        label='file type')
+                with gr.Column(scale=1):
+                    md5_sum = gr.Textbox(placeholder='(optional)', label='md5 sum')
+                with gr.Column(scale=1):
+                    model_name = gr.Textbox(label='model name')
+                with gr.Column(scale=1):
+                    stable_diffusion_file = gr.Textbox(label='model link')
+                with gr.Column(scale=1):
+                    download_button = gr.Button(value='Download',
+                                                variant='primary')
+        
+        download_model_ui.load(fn=public_cache, inputs=[download_model_type_select], outputs=[create_warning])
 
     # create model UI
     with gr.Row(visible=others_dir):
@@ -1017,6 +1122,11 @@ def create_tab(tab: ModelZooBrowserTab, current_gr_tab: gr.Tab):
                                 'Delete(in modelzoo)',
                                 elem_id=f'{tab.base_tag}_modelzoo' +
                                 '_browser_del_img_btn')
+                        with gr.Column(scale=1):
+                            modelzoo_refresh_button = gr.Button(
+                                'Refresh',
+                                variant='primary'
+                            )
 
                 with gr.Column(scale=1):
                     with gr.Row(scale=0.5) as sort_panel:
@@ -1112,6 +1222,9 @@ def create_tab(tab: ModelZooBrowserTab, current_gr_tab: gr.Tab):
                         # After clicking the image in gallery, if delete image
                         #   the current selected image needs update.
                         select_image_switch = gr.Number(value=1)
+                        # download model ids
+                        # selected_models = gr.State(elem_id="selected_models", value=[])
+                        selected_models = gr.Text(elem_id="selected_models", value="")
 
     # Model Event
     search_model_type_select.change(lambda s: (-s),
@@ -1155,6 +1268,11 @@ def create_tab(tab: ModelZooBrowserTab, current_gr_tab: gr.Tab):
             prompt_info_panel, search_model_type_select, send_buttons_panel,
             sort_panel
         ])
+    modelzoo_refresh_button.click(
+        fn=lambda s: (-s),
+        inputs=[turn_page_switch],
+        outputs=[turn_page_switch]
+    )
     # Hidden Event
     select_image_switch.change(fn=None,
                                inputs=[tab_base_tag_box, image_index],
@@ -1196,13 +1314,18 @@ def create_tab(tab: ModelZooBrowserTab, current_gr_tab: gr.Tab):
                          outputs=[collected_warning])
 
     # Download Model Tab
-    download_button.click(fn=download_by_link,
-                          inputs=[
-                              stable_diffusion_file, turn_page_switch,
-                              download_model_type_select, md5_sum, model_name
-                          ],
-                          outputs=[create_warning, turn_page_switch],
-                          show_progress=True)
+    # download_button.click(fn=download_by_link,
+    #                       inputs=[
+    #                           stable_diffusion_file, turn_page_switch,
+    #                           download_model_type_select, md5_sum, model_name
+    #                       ],
+    #                       outputs=[create_warning, turn_page_switch])
+    # download_button.click(_js="models_selected", fn=download_public_cache, inputs=[selected_models], outputs=[download_warning])
+    download_button.click(_js="models_selected", fn=download_api, inputs=[selected_models, stable_diffusion_file, turn_page_switch, download_model_type_select, md5_sum, model_name], outputs=[download_warning, turn_page_switch])
+    download_model_type_select.change(fn=public_cache, _js="refresh_models", 
+        inputs=[download_model_type_select],
+        outputs=[create_warning]
+    )
     # Upload Model Tab
     all_model_commit_button.click(
         fn=upload_all_models,
