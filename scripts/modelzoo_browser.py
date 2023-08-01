@@ -979,7 +979,7 @@ def download_public_cache(models_selected, model_type):
             existed_models.append(model)
             continue
 
-        # shutil.copy(source_model, target_model)
+        shutil.copy(source_model, target_model)
         mz.create_model(target_model, model, model_tags=model_tags)
         success_models.append(model)
         print(f"copy from {source_model} to {target_model}")
@@ -1040,6 +1040,9 @@ def public_cache(file_type: str):
     """
 
     for model in os.listdir(source_model_dir):
+        if model.endswith(['png', 'yaml', 'md', 'info']):
+            continue
+
         current_model_path = os.path.join(source_model_dir, model)
 
         code += f"""
