@@ -1013,14 +1013,16 @@ def public_cache(file_type: str):
     global source_model_dir, target_data_dir
     # check if --data-dir is delivered
     data_dir = paths.models_path
+    public_cache_dir = "/stable-diffusion-cache"
     # data_dir = cmd_opts.data_dir
     if file_type == "Checkpoints":
         file_type = "Stable-diffusion"
-    source_model_dir = os.path.join(data_dir, file_type)
+    # source_model_dir = os.path.join(data_dir, file_type)
+    source_model_dir = os.path.join(public_cache_dir, file_type)
     if file_type == 'embeddings':
         target_data_dir = list(model_hijack.embedding_db.embedding_dirs.keys())[0]
     else:
-        target_data_dir = os.path.join(paths.models_path, file_type)
+        target_data_dir = os.path.join(data_dir, file_type)
 
     code = f"""<!-- {time.time()} -->
     <div id="table_div">
