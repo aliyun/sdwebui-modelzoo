@@ -28,7 +28,7 @@ from modules.ui_components import DropdownMulti, ToolButton
 from scripts.modelzoo.modelzoo.metainfo import ModelMeta
 from scripts.modelzoo.modelzoo.modelzoo import ModelZoo
 from scripts.modelzoo.modelzoo.prompt import Prompt
-from scripts.utils import convert_size, convert_model_type
+# from scripts.utils import convert_size, convert_model_type
 from modules.sd_hijack import model_hijack
 
 import time
@@ -171,6 +171,24 @@ if logger.isEnabledFor(logging.DEBUG):
     logger.debug(os.path.realpath(__file__))
     logger.debug([str(tab) for tab in tabs_list])
 
+def convert_size(file_size):
+    """
+    """
+    units = ["B", "KB", "MB", "GB", "TB", "PB"]
+    size = 1024
+    for i in range(len(units)):
+        if (file_size / size) < 1:
+            return "%.2f%s" % (file_size, units[i])
+        file_size = file_size / size
+
+
+def convert_model_type(model_type):
+    if model_type == 'Lora':
+        return 'lora'
+    if model_type == 'checkpoints':
+        return 'safetensors'
+    
+    return None
 
 def sort_order_flip(turn_page_switch: int, sort_order: str):
     """
