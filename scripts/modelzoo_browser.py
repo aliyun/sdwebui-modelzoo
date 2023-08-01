@@ -1013,7 +1013,7 @@ def public_cache(file_type: str):
     global source_model_dir, target_data_dir
     # check if --data-dir is delivered
     data_dir = paths.models_path
-    public_cache_dir = "/stable-diffusion-cache"
+    public_cache_dir = "/stable-diffusion-cache/models"
     # data_dir = cmd_opts.data_dir
     if file_type == "Checkpoints":
         file_type = "Stable-diffusion"
