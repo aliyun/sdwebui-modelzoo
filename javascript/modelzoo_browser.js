@@ -251,7 +251,6 @@ function modelzoo_browser_init() {
         const tab_btns = gradioApp().getElementById("modelzoo_browser_tabs_container").querySelector("div").querySelectorAll("button")
         tab_btns.forEach(function(btn, i) {
             const tab_base_tag = modelzoo_browser_tab_base_tags_list[i]
-	    console.log("tab_base_tag: ", tab_base_tag)
             btn.setAttribute("tab_base_tag", tab_base_tag)
             btn.removeEventListener('click', () => btnClickHandler(tab_base_tag, btn))
             btn.addEventListener('click', () => btnClickHandler(tab_base_tag, btn))
@@ -431,4 +430,45 @@ function modelzoo_browser_selectCheckpoint(name, select_hidden){
     return [
         name, select_hidden
     ]
+}
+
+// download model ui table.
+function toggle_all_extensions(event) {
+    gradioApp().querySelectorAll('#public_cache .extension_toggle').forEach(function(checkbox_el) {
+        checkbox_el.checked = event.target.checked;
+    });
+}
+
+function toggle_extension() {
+    let all_extensions_toggled = true;
+    for (const checkbox_el of gradioApp().querySelectorAll('#public_cache .extension_toggle')) {
+        if (!checkbox_el.checked) {
+            all_extensions_toggled = false;
+            break;
+        }
+    }
+
+    gradioApp().querySelector('#public_cache .all_extensions_toggle').checked = all_extensions_toggled;
+}
+
+function models_selected(selected_models, model_link, turn_page_switch, model_type, md5, filename) {
+    var update = [];
+
+    gradioApp().querySelectorAll('#public_cache input[type="checkbox"]').forEach(function(x) {
+        if (!x.name.startsWith("enable_") && x.checked && x.name != "") {
+            update.push(x.name);
+        }
+    });
+
+    return [JSON.stringify(update), model_link, turn_page_switch, model_type, md5, filename];
+}
+
+function refresh_models(download_model_type_select) {
+    gradioApp().querySelectorAll('#public_cache input[type="checkbox"]').forEach(function(x) {
+        if (x.checked) {
+            x.checked = false;
+        }
+    })
+
+    return download_model_type_select;
 }
