@@ -28,7 +28,7 @@ from modules.ui_components import DropdownMulti, ToolButton
 from scripts.modelzoo.modelzoo.metainfo import ModelMeta
 from scripts.modelzoo.modelzoo.modelzoo import ModelZoo
 from scripts.modelzoo.modelzoo.prompt import Prompt
-from scripts.utils import convert_size
+from scripts.utils import convert_size, convert_model_type
 from modules.sd_hijack import model_hijack
 
 import time
@@ -943,12 +943,15 @@ def download_by_link(model_link: str,
     return load_info, -turn_page_switch
 
 
-def download_public_cache(models_selected):
-    global source_model_dir, target_data_dir
+def download_public_cache(models_selected, model_type):
+    global source_model_dir, target_data_dir, mz
     load_info = "download from public cache: "
     models_selected = set(json.loads(models_selected))
     existed_models = list()
     success_models = list()
+    model_tags = list()
+    if model_type is not None:
+        model_tags.append(convert_model_type(model_type))
 
     for model in models_selected:
         source_model = os.path.join(source_model_dir, model)
@@ -959,6 +962,7 @@ def download_public_cache(models_selected):
             continue
 
         # shutil.copy(source_model, target_model)
+        mz.create_model(target_model, model, model_tags=model_tags)
         success_models.append(model)
         print(f"copy from {source_model} to {target_model}")
 
@@ -978,7 +982,7 @@ def download_api(models_selected, model_link: str,
 ):
     load_info = "<div style='color:#111' align='center'>"
 
-    load_info += download_public_cache(models_selected)
+    load_info += download_public_cache(models_selected, model_type)
     info, turn_page_switch = download_by_link(model_link, turn_page_switch, model_type, md5, filename)
     load_info += info
 

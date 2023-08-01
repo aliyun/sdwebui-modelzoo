@@ -7,3 +7,12 @@ def convert_size(file_size):
         if (file_size / size) < 1:
             return "%.2f%s" % (file_size, units[i])
         file_size = file_size / size
+
+
+def convert_model_type(model_type):
+    if model_type == 'Lora':
+        return 'lora'
+    if model_type == 'checkpoints':
+        return 'safetensors'
+    
+    return None
