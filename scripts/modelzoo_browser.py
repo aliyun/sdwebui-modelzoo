@@ -1041,8 +1041,8 @@ def public_cache(file_type: str):
     """
 
     for model in os.listdir(source_model_dir):
-        if model.endswith(('png', 'yaml', 'md', 'info')):
-            continue
+        # if model.endswith(('png', 'yaml', 'md', 'info')):
+        #     continue
 
         current_model_path = os.path.join(source_model_dir, model)
 
