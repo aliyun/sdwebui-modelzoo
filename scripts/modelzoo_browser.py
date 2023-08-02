@@ -1012,7 +1012,8 @@ def download_api(models_selected, model_link: str,
 def public_cache(file_type: str):
     global source_model_dir, target_data_dir
     # check if --data-dir is delivered
-    data_dir = paths.models_path if cmd_opts.data_dir == '' else cmd_opts.data_dir
+    # data_dir = paths.models_path if cmd_opts.data_dir == '' else cmd_opts.data_dir
+    data_dir = paths.models_path
     public_cache_dir = '/stable-diffusion-cache/models' if cmd_opts.public_cache else paths.models_path
     # data_dir = cmd_opts.data_dir
     if file_type == "Checkpoints":
