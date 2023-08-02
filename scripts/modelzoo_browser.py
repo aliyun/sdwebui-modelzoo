@@ -96,7 +96,7 @@ if os.path.exists(today_path_img):
         saved_images.append(image_path)
 source_model_dir = ""
 target_model_dir = ""
-
+unmodel_list = ('png', 'yaml', 'md', 'info')
 
 class ModelZooBrowserTab():
 
@@ -189,6 +189,15 @@ def convert_model_type(model_type):
         return 'safetensors'
     
     return None
+
+
+def correlated_info(model_name_with_suffix):
+    image_suffix = ".preview.png"
+    info_suffix = ".civitai.info"
+    model_name = os.path.splitext(model_name_with_suffix)[0]
+
+    return (model_name+image_suffix, model_name+info_suffix)
+
 
 def sort_order_flip(turn_page_switch: int, sort_order: str):
     """
@@ -979,10 +988,20 @@ def download_public_cache(models_selected, model_type):
             existed_models.append(model)
             continue
 
+        # if Stable-diffusion dir
+        # copy preview image and civitai info.
+        if model_type == 'checkpoints':
+            img, info = correlated_info(model)
+            try:
+                shutil.copy(os.path.join(source_model_dir, img), os.path.join(target_data_dir, img))
+                shutil.copy(os.path.join(source_model_dir, info), os.path.join(target_data_dir, info))
+            except:
+                pass
+
         shutil.copy(source_model, target_model)
         mz.create_model(target_model, model, model_tags=model_tags)
         success_models.append(model)
-        print(f"copy from {source_model} to {target_model}")
+        # print(f"copy from {source_model} to {target_model}")
 
     if success_models != []:
         load_info += f'download {", ".join(success_models)} success</br>'
@@ -1041,8 +1060,8 @@ def public_cache(file_type: str):
     """
 
     for model in os.listdir(source_model_dir):
-        # if model.endswith(('png', 'yaml', 'md', 'info')):
-        #     continue
+        if model.endswith(unmodel_list):
+            continue
 
         current_model_path = os.path.join(source_model_dir, model)
 
