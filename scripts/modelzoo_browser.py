@@ -990,15 +990,16 @@ def download_public_cache(models_selected, model_type):
 
         # if Stable-diffusion dir
         # copy preview image and civitai info.
-        if model_type == 'checkpoints':
-            img, info = correlated_info(model)
-            print("img: ", os.path.join(source_model_dir, img))
-            print("target img: ", os.path.join(target_data_dir, img))
-            try:
-                shutil.copy(os.path.join(source_model_dir, img), os.path.join(target_data_dir, img))
-                shutil.copy(os.path.join(source_model_dir, info), os.path.join(target_data_dir, info))
-            except:
-                print("copy error.")
+        print("model_type: ", model_type)
+        # if model_type == 'checkpoints':
+        img, info = correlated_info(model)
+        print("img: ", os.path.join(source_model_dir, img))
+        print("target img: ", os.path.join(target_data_dir, img))
+        try:
+            shutil.copy(os.path.join(source_model_dir, img), os.path.join(target_data_dir, img))
+            shutil.copy(os.path.join(source_model_dir, info), os.path.join(target_data_dir, info))
+        except:
+            print("copy error.")
 
         shutil.copy(source_model, target_model)
         mz.create_model(target_model, model, model_tags=model_tags)
