@@ -2,17 +2,16 @@
   justify-content: initial;
 }
 
-#public_cache label::before {
-  display: inline-block;
-  content: "√";
-  width: 12px;
-  border: 2px solid #fff;
-  height: 4px;
-  border-top: none;
-  border-right: none;
-  transform: rotate(-45deg);
-  top: 5px;
-  left: 3px;
-  position: absolute;
-  opacity: 0;
+#table_div {
+  height: 300px;
+  overflow: scroll;
+}
+
+#public_cache input[type="checkbox"]:checked {
+  background-color: #e6e6e6;
+  /* 设置选中后的背景颜色 */
+  border: 1px solid #333;
+  /* 设置选中后的边框样式 */
+  color: #0f0;
+  /* 设置选中后的文本颜色 */
 }
