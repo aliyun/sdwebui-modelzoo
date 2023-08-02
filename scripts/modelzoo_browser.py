@@ -185,7 +185,7 @@ def convert_size(file_size):
 def convert_model_type(model_type):
     if model_type == 'Lora':
         return 'lora'
-    if model_type == 'checkpoints':
+    if model_type == 'Checkpoints':
         return 'safetensors'
     
     return None
@@ -990,16 +990,13 @@ def download_public_cache(models_selected, model_type):
 
         # if Stable-diffusion dir
         # copy preview image and civitai info.
-        print("model_type: ", model_type)
-        # if model_type == 'checkpoints':
-        img, info = correlated_info(model)
-        print("img: ", os.path.join(source_model_dir, img))
-        print("target img: ", os.path.join(target_data_dir, img))
-        try:
-            shutil.copy(os.path.join(source_model_dir, img), os.path.join(target_data_dir, img))
-            shutil.copy(os.path.join(source_model_dir, info), os.path.join(target_data_dir, info))
-        except:
-            print("copy error.")
+        if model_type == 'Checkpoints':
+            img, info = correlated_info(model)
+            try:
+                shutil.copy(os.path.join(source_model_dir, img), os.path.join(target_data_dir, img))
+                shutil.copy(os.path.join(source_model_dir, info), os.path.join(target_data_dir, info))
+            except:
+                print("copy error.")
 
         shutil.copy(source_model, target_model)
         mz.create_model(target_model, model, model_tags=model_tags)
@@ -1016,7 +1013,7 @@ def download_public_cache(models_selected, model_type):
 
 def download_api(models_selected, model_link: str,
     turn_page_switch: int,
-    model_type='checkpoints',
+    model_type='Checkpoints',
     md5='',
     filename='',
 ):
