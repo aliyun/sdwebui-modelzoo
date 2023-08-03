@@ -1432,7 +1432,7 @@ def on_ui_tabs():
                    elem_id='modelzoo_browser_gradio_version',
                    visible=False)
 
-    return (modelzoo_browser, 'ModelZoo Browser', 'modelzoo_browser'),
+    return (modelzoo_browser, 'Model Zoo', 'modelzoo_browser'),
 
 
 def move_setting(cur_setting_name, old_setting_name, option_info, section,
@@ -1505,7 +1505,7 @@ def on_ui_settings():
          'Minimum number of pages per load'),
     ]
 
-    section = ('modelzoo-browser', 'ModelZoo Browser')
+    section = ('modelzoo-browser', 'Model Zoo')
     # Move historic setting names to current names
     added = 0
     for cur_setting_name, old_setting_name, *option_info \
