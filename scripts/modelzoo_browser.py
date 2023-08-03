@@ -97,6 +97,8 @@ if os.path.exists(today_path_img):
 source_model_dir = ""
 target_model_dir = ""
 unmodel_list = ('png', 'yaml', 'md', 'info')
+public_cache_dir = '/stable-diffusion-cache/models'
+
 
 class ModelZooBrowserTab():
 
@@ -185,7 +187,7 @@ def convert_size(file_size):
 def convert_model_type(model_type):
     if model_type == 'Lora':
         return 'lora'
-    if model_type == 'Checkpoints':
+    if model_type == 'Stable-diffusion Checkpoints':
         return 'safetensors'
     
     return None
@@ -990,7 +992,7 @@ def download_public_cache(models_selected, model_type):
 
         # if Stable-diffusion dir
         # copy preview image and civitai info.
-        if model_type == 'Checkpoints':
+        if model_type == 'Stable-diffusion Checkpoints':
             img, info = correlated_info(model)
             try:
                 shutil.copy(os.path.join(source_model_dir, img), os.path.join(target_data_dir, img))
@@ -1013,7 +1015,7 @@ def download_public_cache(models_selected, model_type):
 
 def download_api(models_selected, model_link: str,
     turn_page_switch: int,
-    model_type='Checkpoints',
+    model_type='Stable-diffusion Checkpoints',
     md5='',
     filename='',
 ):
@@ -1029,13 +1031,11 @@ def download_api(models_selected, model_link: str,
 
 
 def public_cache(file_type: str):
-    global source_model_dir, target_data_dir
+    global source_model_dir, target_data_dir, public_cache_dir
     # check if --data-dir is delivered
     # data_dir = paths.models_path if cmd_opts.data_dir == '' else cmd_opts.data_dir
     data_dir = paths.models_path
-    public_cache_dir = '/stable-diffusion-cache/models' if cmd_opts.public_cache else paths.models_path
-    # data_dir = cmd_opts.data_dir
-    if file_type == "Checkpoints":
+    if file_type == "Stable-diffusion Checkpoints":
         file_type = "Stable-diffusion"
     # source_model_dir = os.path.join(data_dir, file_type)
     source_model_dir = os.path.join(public_cache_dir, file_type)
@@ -1082,6 +1082,7 @@ def public_cache(file_type: str):
 
 
 def create_tab(tab: ModelZooBrowserTab, current_gr_tab: gr.Tab):
+    global public_cache_dir
     others_dir = False
     download_ui = False
     standard_ui = True
@@ -1106,8 +1107,8 @@ def create_tab(tab: ModelZooBrowserTab, current_gr_tab: gr.Tab):
             with gr.Row(scale=2):
                 with gr.Column(scale=1):
                     download_model_type_select = gr.Dropdown(
-                        value='Checkpoints',
-                        choices=['Checkpoints', 'Lora', 'ControlNet', 'VAE', 'embeddings'],
+                        value='Stable-diffusion Checkpoints',
+                        choices=['Stable-diffusion Checkpoints', 'Lora', 'ControlNet', 'VAE'],
                         label='file type')
                 with gr.Column(scale=1):
                     md5_sum = gr.Textbox(placeholder='(optional)', label='md5 sum')
@@ -1119,7 +1120,8 @@ def create_tab(tab: ModelZooBrowserTab, current_gr_tab: gr.Tab):
                     download_button = gr.Button(value='Download',
                                                 variant='primary')
         
-        download_model_ui.load(fn=public_cache, inputs=[download_model_type_select], outputs=[create_warning])
+        # if cmd_opts.public_cache or os.path.exists(public_cache_dir):
+            # download_model_ui.load(fn=public_cache, inputs=[download_model_type_select], outputs=[create_warning])
 
     # create model UI
     with gr.Row(visible=others_dir):
