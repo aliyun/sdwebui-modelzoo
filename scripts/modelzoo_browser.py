@@ -1120,8 +1120,8 @@ def create_tab(tab: ModelZooBrowserTab, current_gr_tab: gr.Tab):
                     download_button = gr.Button(value='Download',
                                                 variant='primary')
         
-        # if cmd_opts.public_cache or os.path.exists(public_cache_dir):
-        #     download_model_ui.load(fn=public_cache, inputs=[download_model_type_select], outputs=[create_warning])
+        if cmd_opts.public_cache or os.path.exists(public_cache_dir):
+            download_model_ui.load(fn=public_cache, inputs=[download_model_type_select], outputs=[create_warning])
 
     # create model UI
     with gr.Row(visible=others_dir):
@@ -1371,11 +1371,11 @@ def create_tab(tab: ModelZooBrowserTab, current_gr_tab: gr.Tab):
     #                       outputs=[create_warning, turn_page_switch])
     # download_button.click(_js="models_selected", fn=download_public_cache, inputs=[selected_models], outputs=[download_warning])
     download_button.click(_js="models_selected", fn=download_api, inputs=[selected_models, stable_diffusion_file, turn_page_switch, download_model_type_select, md5_sum, model_name], outputs=[download_warning, turn_page_switch])
-    # if cmd_opts.public_cache or os.path.exists(public_cache_dir):
-        # download_model_type_select.change(fn=public_cache, _js="refresh_models", 
-        #     inputs=[download_model_type_select],
-        #     outputs=[create_warning]
-        # )
+    if cmd_opts.public_cache or os.path.exists(public_cache_dir):
+        download_model_type_select.change(fn=public_cache, _js="refresh_models", 
+            inputs=[download_model_type_select],
+            outputs=[create_warning]
+        )
     # Upload Model Tab
     all_model_commit_button.click(
         fn=upload_all_models,
