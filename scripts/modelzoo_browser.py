@@ -1051,8 +1051,9 @@ def public_cache(file_type: str):
             <tr>
                 <th>
                     <input type="checkbox" class="gr-check-radio gr-checkbox all_extensions_toggle" onchange="toggle_all_extensions(event)" />
-                    <abbr title="Use checkbox to enable the extension; it will be enabled or disabled when you click apply button">model name</abbr>
+                    <abbr>model name</abbr>
                 </th>
+                <th>update time</th>
                 <th>file size</th>
             </tr>
         </thead>
@@ -1068,6 +1069,7 @@ def public_cache(file_type: str):
         code += f"""
             <tr>
                 <td><label><input class="gr-check-radio gr-checkbox extension_toggle" type="checkbox" onchange="toggle_extension(event)" name="{model}"/>&nbsp;{model}</label></td>
+                <td>{time.localtime(os.stat(current_model_path).st_mtime)}</td>
                 <td>{convert_size(os.path.getsize(current_model_path))}</td>
             </tr>
     """
