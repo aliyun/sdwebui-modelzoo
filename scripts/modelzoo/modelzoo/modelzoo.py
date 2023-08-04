@@ -55,7 +55,10 @@ class ModelZoo:
             self.modelzoo_file = modelzoo_file
 
         if os.path.exists(self.modelzoo_file):
-            self.modelzoo = DocumentArray.load(self.modelzoo_file)
+            try:
+                self.modelzoo = DocumentArray.load(self.modelzoo_file)
+            except Exception:
+                self.modelzoo = DocumentArray()
         else:
             self.modelzoo = DocumentArray()
 
