@@ -97,7 +97,8 @@ if os.path.exists(today_path_img):
 source_model_dir = ""
 target_model_dir = ""
 user_data_dir = paths.models_path
-public_data_dir = cmd_opts.shared_dir
+# public_data_dir = cmd_opts.shared_dir
+public_data_dir = ""
 unmodel_list = ('png', 'yaml', 'md', 'info')
 public_cache_dir = '/stable-diffusion-cache/models'
 
