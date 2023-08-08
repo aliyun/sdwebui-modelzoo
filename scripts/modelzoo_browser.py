@@ -96,6 +96,8 @@ if os.path.exists(today_path_img):
         saved_images.append(image_path)
 source_model_dir = ""
 target_model_dir = ""
+user_data_dir = paths.models_path
+public_data_dir = cmd_opts.shared_dir
 unmodel_list = ('png', 'yaml', 'md', 'info')
 public_cache_dir = '/stable-diffusion-cache/models'
 
@@ -973,7 +975,7 @@ def download_by_link(model_link: str,
 
 
 def download_public_cache(models_selected, model_type):
-    global public_cache_dir, target_data_dir, mz
+    global public_cache_dir, user_data_dir, public_data_dir, mz
     load_info = "download from public cache: "
     models_selected = set(json.loads(models_selected))
     existed_models = list()
@@ -983,7 +985,7 @@ def download_public_cache(models_selected, model_type):
     if model_type == 'Stable-diffusion Checkpoints':
         model_type = 'Stable-diffusion'
     src_dir = os.path.join(public_cache_dir, model_type)
-    tgt_dir = os.path.join(target_data_dir, model_type)
+    tgt_dir = os.path.join(user_data_dir, model_type)
 
     if model_type is not None:
         model_tags.append(convert_model_type(model_type))
