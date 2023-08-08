@@ -97,8 +97,8 @@ if os.path.exists(today_path_img):
 source_model_dir = ""
 target_model_dir = ""
 user_data_dir = paths.models_path
-# public_data_dir = cmd_opts.shared_dir
-public_data_dir = ""
+public_data_dir = cmd_opts.shared_dir
+# public_data_dir = ""
 unmodel_list = ('png', 'yaml', 'md', 'info')
 public_cache_dir = '/stable-diffusion-cache/models'
 
@@ -1120,7 +1120,7 @@ def create_tab(tab: ModelZooBrowserTab, current_gr_tab: gr.Tab):
                     download_model_type_select = gr.Dropdown(
                         value='Stable-diffusion Checkpoints',
                         choices=['Stable-diffusion Checkpoints', 'Lora', 'ControlNet', 'VAE',
-                                 'clip', 'anntators', 'Codeformer', 'ESRGAN', 'GFPGAN', 'hypernetworks',
+                                 'clip', 'annotator', 'Codeformer', 'ESRGAN', 'GFPGAN', 'hypernetworks',
                                  'LDSR', 'SwinIR', 'VAE-approx'],
                         label='file type')
                 with gr.Column(scale=1):
