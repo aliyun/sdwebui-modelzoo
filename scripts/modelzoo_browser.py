@@ -187,7 +187,7 @@ def convert_size(file_size):
 def convert_model_type(model_type):
     if model_type == 'Lora':
         return 'lora'
-    if model_type == 'Stable-diffusion Checkpoints':
+    if model_type == 'Stable-diffusion':
         return 'safetensors'
     
     return None
@@ -973,18 +973,24 @@ def download_by_link(model_link: str,
 
 
 def download_public_cache(models_selected, model_type):
-    global source_model_dir, target_data_dir, mz
+    global public_cache_dir, target_data_dir, mz
     load_info = "download from public cache: "
     models_selected = set(json.loads(models_selected))
     existed_models = list()
     success_models = list()
     model_tags = list()
+
+    if model_type == 'Stable-diffusion Checkpoints':
+        model_type = 'Stable-diffusion'
+    src_dir = os.path.join(public_cache_dir, model_type)
+    tgt_dir = os.path.join(target_data_dir, model_type)
+
     if model_type is not None:
         model_tags.append(convert_model_type(model_type))
 
     for model in models_selected:
-        source_model = os.path.join(source_model_dir, model)
-        target_model = os.path.join(target_data_dir, model)
+        source_model = os.path.join(src_dir, model)
+        target_model = os.path.join(tgt_dir, model)
 
         if os.path.exists(target_model):
             existed_models.append(model)
@@ -992,11 +998,11 @@ def download_public_cache(models_selected, model_type):
 
         # if Stable-diffusion dir
         # copy preview image and civitai info.
-        if model_type == 'Stable-diffusion Checkpoints':
+        if model_type == 'Stable-diffusion':
             img, info = correlated_info(model)
             try:
-                shutil.copy(os.path.join(source_model_dir, img), os.path.join(target_data_dir, img))
-                shutil.copy(os.path.join(source_model_dir, info), os.path.join(target_data_dir, info))
+                shutil.copy(os.path.join(src_dir, img), os.path.join(tgt_dir, img))
+                shutil.copy(os.path.join(src_dir, info), os.path.join(tgt_dir, info))
             except:
                 print("copy error.")
 
@@ -1110,7 +1116,9 @@ def create_tab(tab: ModelZooBrowserTab, current_gr_tab: gr.Tab):
                 with gr.Column(scale=1):
                     download_model_type_select = gr.Dropdown(
                         value='Stable-diffusion Checkpoints',
-                        choices=['Stable-diffusion Checkpoints', 'Lora', 'ControlNet', 'VAE'],
+                        choices=['Stable-diffusion Checkpoints', 'Lora', 'ControlNet', 'VAE',
+                                 'clip', 'anntators', 'Codeformer', 'ESRGAN', 'GFPGAN', 'hypernetworks',
+                                 'LDSR', 'SwinIR', 'VAE-approx'],
                         label='file type')
                 with gr.Column(scale=1):
                     md5_sum = gr.Textbox(placeholder='(optional)', label='md5 sum')
