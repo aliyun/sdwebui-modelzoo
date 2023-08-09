@@ -97,10 +97,10 @@ if os.path.exists(today_path_img):
 source_model_dir = ""
 target_model_dir = ""
 user_data_dir = paths.models_path
-# public_data_dir = cmd_opts.shared_dir
-public_data_dir = ""
-unmodel_list = ('png', 'yaml', 'md', 'info')
+public_data_dir = os.path.join(cmd_opts.shared_dir, 'models')
+unmodel_list = ('png', 'md', 'info')
 public_cache_dir = '/stable-diffusion-cache/models'
+download_for_public = ('annotator', 'clip', 'Codeformer', 'ControlNet', 'SwinIR')
 
 
 class ModelZooBrowserTab():
@@ -976,7 +976,7 @@ def download_by_link(model_link: str,
 
 
 def download_public_cache(models_selected, model_type):
-    global public_cache_dir, user_data_dir, public_data_dir, mz
+    global public_cache_dir, user_data_dir, public_data_dir, mz, download_for_public
     load_info = "download from public cache: "
     models_selected = set(json.loads(models_selected))
     existed_models = list()
@@ -987,6 +987,8 @@ def download_public_cache(models_selected, model_type):
         model_type = 'Stable-diffusion'
     src_dir = os.path.join(public_cache_dir, model_type)
     tgt_dir = os.path.join(user_data_dir, model_type)
+    if model_type in download_for_public:
+        tgt_dir = os.path.join(public_data_dir, model_type)
 
     if model_type is not None:
         model_tags.append(convert_model_type(model_type))
@@ -1001,7 +1003,7 @@ def download_public_cache(models_selected, model_type):
 
         # if Stable-diffusion dir
         # copy preview image and civitai info.
-        if model_type == 'Stable-diffusion':
+        if model_type in ('Stable-diffusion', 'Lora'):
             img, info = correlated_info(model)
             try:
                 shutil.copy(os.path.join(src_dir, img), os.path.join(tgt_dir, img))
@@ -1040,18 +1042,12 @@ def download_api(models_selected, model_link: str,
 
 
 def public_cache(file_type: str):
-    global source_model_dir, target_data_dir, public_cache_dir
+    global public_cache_dir
     # check if --data-dir is delivered
-    # data_dir = paths.models_path if cmd_opts.data_dir == '' else cmd_opts.data_dir
-    data_dir = paths.models_path
     if file_type == "Stable-diffusion Checkpoints":
         file_type = "Stable-diffusion"
     # source_model_dir = os.path.join(data_dir, file_type)
     source_model_dir = os.path.join(public_cache_dir, file_type)
-    if file_type == 'embeddings':
-        target_data_dir = list(model_hijack.embedding_db.embedding_dirs.keys())[0]
-    else:
-        target_data_dir = os.path.join(data_dir, file_type)
 
     code = f"""<!-- {time.time()} -->
     <div id="table_div">
@@ -1070,8 +1066,8 @@ def public_cache(file_type: str):
     """
 
     for model in os.listdir(source_model_dir):
-        # if model.endswith(unmodel_list):
-        #     continue
+        if model.endswith(unmodel_list):
+            continue
 
         current_model_path = os.path.join(source_model_dir, model)
 
