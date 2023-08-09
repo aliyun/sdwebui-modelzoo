@@ -917,33 +917,33 @@ def download_by_link(model_link: str,
 
     # Get the filename from the link.
     if filename == '':
-        load_info = 'please input filename<br />'
+        load_info += 'please input filename<br />'
         return load_info, turn_page_switch
     if model_link == '':
-        load_info = 'please input model_link<br />'
+        load_info += 'please input model_link<br />'
         return load_info, turn_page_switch
     if is_controlnet:
         if not filename.endswith(('.pth', '.bin', '.ckpt', '.pt')):
-            load_info = 'please input controlnet filename with suffix<br />'
+            load_info += 'please input controlnet filename with suffix<br />'
             return load_info, turn_page_switch
     else:
         if not filename.endswith(('.safetensors', '.ckpt', '.bin')):
-            load_info = 'please input filename with suffix<br />'
+            load_info += 'please input filename with suffix<br />'
             return load_info, turn_page_switch
     try:
         res = requests.get(model_link, stream=True, timeout=5)
     except (requests.exceptions.ReadTimeout,
             requests.exceptions.ConnectionError,
             urllib3.exceptions.ReadTimeoutError, TimeoutError):
-        load_info = 'timeout, suggest copy by oss to filebrowser<br />'
+        load_info += 'timeout, suggest copy by oss to filebrowser<br />'
         return load_info, turn_page_switch
     except (requests.exceptions.MissingSchema):
-        load_info = 'please input valid model link<br />'
+        load_info += 'please input valid model link<br />'
         return load_info, turn_page_switch
 
     # Check the response status code.
     if res.status_code == 404 or res.status_code == 500:
-        load_info = 'download failed<br />'
+        load_info += 'download failed<br />'
         return load_info, turn_page_switch
     target_model = os.path.join(output_dir, filename)
     f = open(target_model, 'wb')
@@ -967,9 +967,9 @@ def download_by_link(model_link: str,
     if result:
         if not is_controlnet:
             mz.create_model(target_model, filename, model_tags=model_tags)
-        load_info = 'download {} successfully<br />'.format(filename)
+        load_info += 'download {} successfully<br />'.format(filename)
     else:
-        load_info = 'download {} failed<br />'.format(filename)
+        load_info += 'download {} failed<br />'.format(filename)
 
     return load_info, -turn_page_switch
 
@@ -1111,10 +1111,10 @@ def create_tab(tab: ModelZooBrowserTab, current_gr_tab: gr.Tab):
                 download_warning = gr.HTML()
             with gr.Row(scale=1):
                 create_warning = gr.HTML()
-            with gr.Row(scale=1):
-                checkbox_download_public = gr.Checkbox(value=False, label='download to public dir')
             with gr.Row(scale=2):
                 with gr.Column(scale=1):
+                    checkbox_download_public = gr.Checkbox(value=False, label='download to public dir')
+                with gr.Column(scale=2):
                     download_model_type_select = gr.Dropdown(
                         value='Stable-diffusion Checkpoints',
                         choices=['Stable-diffusion Checkpoints', 'Lora', 'ControlNet', 'VAE',
