@@ -29,7 +29,6 @@ from scripts.modelzoo.modelzoo.metainfo import ModelMeta
 from scripts.modelzoo.modelzoo.modelzoo import ModelZoo
 from scripts.modelzoo.modelzoo.prompt import Prompt
 # from scripts.utils import convert_size, convert_model_type
-from modules.sd_hijack import model_hijack
 
 import time
 from modules import extensions
@@ -975,7 +974,7 @@ def download_by_link(model_link: str,
     return load_info, -turn_page_switch
 
 
-def download_public_cache(models_selected, model_type):
+def download_public_cache(models_selected, model_type, bool_download_public):
     global public_cache_dir, user_data_dir, public_data_dir, mz, download_for_public
     load_info = "download from public cache: "
     models_selected = set(json.loads(models_selected))
@@ -987,7 +986,7 @@ def download_public_cache(models_selected, model_type):
         model_type = 'Stable-diffusion'
     src_dir = os.path.join(public_cache_dir, model_type)
     tgt_dir = os.path.join(user_data_dir, model_type)
-    if model_type in download_for_public:
+    if model_type in download_for_public or bool_download_public:
         tgt_dir = os.path.join(public_data_dir, model_type)
 
     if model_type is not None:
@@ -1001,7 +1000,7 @@ def download_public_cache(models_selected, model_type):
             existed_models.append(model)
             continue
 
-        # if Stable-diffusion dir
+        # if Stable-diffusion or Lora dir
         # copy preview image and civitai info.
         if model_type in ('Stable-diffusion', 'Lora'):
             img, info = correlated_info(model)
@@ -1029,10 +1028,11 @@ def download_api(models_selected, model_link: str,
     model_type='Stable-diffusion Checkpoints',
     md5='',
     filename='',
+    download_public=False,
 ):
     load_info = "<div style='color:#111' align='center'>"
 
-    load_info += download_public_cache(models_selected, model_type)
+    load_info += download_public_cache(models_selected, model_type, download_public)
     info, turn_page_switch = download_by_link(model_link, turn_page_switch, model_type, md5, filename)
     load_info += info
 
@@ -1111,6 +1111,8 @@ def create_tab(tab: ModelZooBrowserTab, current_gr_tab: gr.Tab):
                 download_warning = gr.HTML()
             with gr.Row(scale=1):
                 create_warning = gr.HTML()
+            with gr.Row(scale=1):
+                checkbox_download_public = gr.Checkbox(value='download to public dir')
             with gr.Row(scale=2):
                 with gr.Column(scale=1):
                     download_model_type_select = gr.Dropdown(
@@ -1379,7 +1381,7 @@ def create_tab(tab: ModelZooBrowserTab, current_gr_tab: gr.Tab):
     #                       ],
     #                       outputs=[create_warning, turn_page_switch])
     # download_button.click(_js="models_selected", fn=download_public_cache, inputs=[selected_models], outputs=[download_warning])
-    download_button.click(_js="models_selected", fn=download_api, inputs=[selected_models, stable_diffusion_file, turn_page_switch, download_model_type_select, md5_sum, model_name], outputs=[download_warning, turn_page_switch])
+    download_button.click(_js="models_selected", fn=download_api, inputs=[selected_models, stable_diffusion_file, turn_page_switch, download_model_type_select, md5_sum, model_name, checkbox_download_public], outputs=[download_warning, turn_page_switch])
     if cmd_opts.public_cache or os.path.exists(public_cache_dir):
         download_model_type_select.change(fn=public_cache, _js="refresh_models", 
             inputs=[download_model_type_select],

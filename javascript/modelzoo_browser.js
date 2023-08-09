@@ -451,7 +451,7 @@ function toggle_extension() {
     gradioApp().querySelector('#public_cache .all_extensions_toggle').checked = all_extensions_toggled;
 }
 
-function models_selected(selected_models, model_link, turn_page_switch, model_type, md5, filename) {
+function models_selected(selected_models, model_link, turn_page_switch, model_type, md5, filename, checkbox_download_public) {
     var update = [];
 
     gradioApp().querySelectorAll('#public_cache input[type="checkbox"]').forEach(function(x) {
@@ -460,7 +460,7 @@ function models_selected(selected_models, model_link, turn_page_switch, model_ty
         }
     });
 
-    return [JSON.stringify(update), model_link, turn_page_switch, model_type, md5, filename];
+    return [JSON.stringify(update), model_link, turn_page_switch, model_type, md5, filename, checkbox_download_public];
 }
 
 function refresh_models(download_model_type_select) {
