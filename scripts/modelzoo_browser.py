@@ -1112,7 +1112,7 @@ def create_tab(tab: ModelZooBrowserTab, current_gr_tab: gr.Tab):
             with gr.Row(scale=1):
                 create_warning = gr.HTML()
             with gr.Row(scale=1):
-                checkbox_download_public = gr.Checkbox(value='download to public dir')
+                checkbox_download_public = gr.Checkbox(value=False, label='download to public dir')
             with gr.Row(scale=2):
                 with gr.Column(scale=1):
                     download_model_type_select = gr.Dropdown(
