@@ -465,7 +465,7 @@ function models_selected(selected_models, model_link, turn_page_switch, model_ty
 }
 
 function refresh_models(download_model_type_select) {
-    gradioApp().querySelectorAll('#public_cache input[type="checkbox"]').forEach(function(x) {
+    gradioApp().querySelectorAll('#public_cache .extension_toggle').forEach(function(x) {
         if (x.checked) {
             x.checked = false;
         }
