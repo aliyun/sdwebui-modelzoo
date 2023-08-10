@@ -100,6 +100,7 @@ public_data_dir = os.path.join(cmd_opts.shared_dir, 'models')
 unmodel_list = ('png', 'md', 'info')
 public_cache_dir = '/stable-diffusion-cache/models'
 download_for_public = ('annotator', 'clip', 'Codeformer', 'ControlNet', 'SwinIR')
+show_public_models = list()
 
 
 class ModelZooBrowserTab():
@@ -975,7 +976,7 @@ def download_by_link(model_link: str,
 
 
 def download_public_cache(models_selected, model_type, bool_download_public):
-    global public_cache_dir, user_data_dir, public_data_dir, mz, download_for_public
+    global public_cache_dir, user_data_dir, public_data_dir, mz, download_for_public, show_public_models
     load_info = "download from public cache: "
     models_selected = set(json.loads(models_selected))
     existed_models = list()
@@ -992,8 +993,9 @@ def download_public_cache(models_selected, model_type, bool_download_public):
     if model_type is not None:
         model_tags.append(convert_model_type(model_type))
 
-    print("models_selected: ", models_selected)
     for model in models_selected:
+        if model not in show_public_models:
+            continue
         source_model = os.path.join(src_dir, model)
         target_model = os.path.join(tgt_dir, model)
 
@@ -1043,12 +1045,13 @@ def download_api(models_selected, model_link: str,
 
 
 def public_cache(file_type: str):
-    global public_cache_dir
+    global public_cache_dir, show_public_models
     # check if --data-dir is delivered
     if file_type == "Stable-diffusion Checkpoints":
         file_type = "Stable-diffusion"
     # source_model_dir = os.path.join(data_dir, file_type)
     source_model_dir = os.path.join(public_cache_dir, file_type)
+    show_public_models = list()
 
     code = f"""<!-- {time.time()} -->
     <div id="table_div">
@@ -1069,7 +1072,8 @@ def public_cache(file_type: str):
     for model in os.listdir(source_model_dir):
         if model.endswith(unmodel_list):
             continue
-
+        
+        show_public_models.append(model)
         current_model_path = os.path.join(source_model_dir, model)
 
         code += f"""
