@@ -456,6 +456,7 @@ function models_selected(selected_models, model_link, turn_page_switch, model_ty
 
     gradioApp().querySelectorAll('#public_cache input[type="checkbox"]').forEach(function(x) {
         if (!x.name.startsWith("enable_") && x.checked && x.name != "") {
+            console.log(x.name)
             update.push(x.name);
         }
     });
