@@ -989,6 +989,7 @@ def download_public_cache(models_selected, model_type, bool_download_public):
     tgt_dir = os.path.join(user_data_dir, model_type)
     if model_type in download_for_public or bool_download_public:
         tgt_dir = os.path.join(public_data_dir, model_type)
+    os.makedirs(tgt_dir, exist_ok=True)
 
     if model_type is not None:
         model_tags.append(convert_model_type(model_type))
