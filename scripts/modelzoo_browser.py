@@ -992,6 +992,7 @@ def download_public_cache(models_selected, model_type, bool_download_public):
     if model_type is not None:
         model_tags.append(convert_model_type(model_type))
 
+    print("models_selected: ", models_selected)
     for model in models_selected:
         source_model = os.path.join(src_dir, model)
         target_model = os.path.join(tgt_dir, model)
