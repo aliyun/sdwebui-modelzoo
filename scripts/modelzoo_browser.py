@@ -96,7 +96,10 @@ if os.path.exists(today_path_img):
 source_model_dir = ""
 target_model_dir = ""
 user_data_dir = paths.models_path
-public_data_dir = os.path.join(cmd_opts.shared_dir, 'models')
+try:
+    public_data_dir = os.path.join(cmd_opts.shared_dir, 'models')
+except:
+    public_data_dir = user_data_dir
 unmodel_list = ('png', 'md', 'info')
 public_cache_dir = '/stable-diffusion-cache/models'
 download_for_public = ('annotator', 'clip', 'Codeformer', 'ControlNet', 'SwinIR')
