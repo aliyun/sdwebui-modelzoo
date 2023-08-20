@@ -97,7 +97,7 @@ target_model_dir = ""
 user_data_dir = paths.models_path
 public_data_dir = user_data_dir
 # if cmd_opts.uid is not None:
-public_data_dir = os.path.join(os.path.abspath(os.path.dirname(user_data_dir) + os.path.sep + "."), "models") 
+public_data_dir = os.path.join(os.path.abspath(os.path.dirname(user_data_dir) + os.path.sep + ".."), "models") 
 print("=" * 100)
 print("cmd_opts.uid: ", cmd_opts.uid)
 print("public_data_dir: ", public_data_dir)
