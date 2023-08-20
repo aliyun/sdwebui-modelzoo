@@ -1018,7 +1018,7 @@ def download_public_cache(models_selected, model_type, bool_download_public):
                 print("copy error.")
 
         if model_type in ('annotator'):
-            shutil.copy(source_model, target_model)
+            shutil.copytree(source_model, target_model)
         else:
             shutil.copy(source_model, target_model)
         mz.create_model(target_model, model, model_tags=model_tags)
